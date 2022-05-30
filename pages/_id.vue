@@ -1,7 +1,12 @@
 <template>
   <div class="content">
     <div class="w-100 flex justify-center m-10">
-      <h1 class="text-4xl text-gray-600 font-bold">TO DO list</h1>
+      <div class="text-center">
+        <h1 class="text-4xl text-gray-600 font-bold">
+          TO DO list {{ listId }}
+        </h1>
+        <nuxt-link to="/" class="text-blue-500">Go to lists</nuxt-link>
+      </div>
     </div>
     <form @submit.prevent="handleTodo">
       <div class="flex items-center m-4">
@@ -29,7 +34,10 @@
         </button>
       </div>
     </form>
-    <div v-for="todo in todos" :key="todo.id">
+    <div v-if="todos.length < 1" class="text-center p-10 text-xl text-gray-500">
+      No To do's yet
+    </div>
+    <div v-for="todo in todos" v-else :key="todo.id">
       <TodoItem
         :todo-data="todo"
         @remove="handleDeleteTodo"
@@ -54,17 +62,17 @@ export default {
   },
 
   async fetch() {
-    await this.getTodos(3)
+    await this.getTodos(this.$route.params.id)
   },
 
   computed: {
     ...mapGetters({
       todos: 'todo/todos',
     }),
-  },
 
-  mounted() {
-    this.getTodos(3)
+    listId() {
+      return this.$route.params.id
+    },
   },
 
   methods: {
@@ -79,14 +87,16 @@ export default {
       if (this.selectedTodo) {
         this.handleUpdate()
       } else {
-        await this.addTodo(1, { todo: { title: this.title } })
+        await this.addTodo({
+          todo: { title: this.title, list_id: this.listId },
+        })
       }
       this.title = ''
       this.selectedTodo = null
     },
 
     async handleDeleteTodo(id) {
-      await this.deleteTodo(id)
+      await this.deleteTodo({ list_id: this.listId, id })
     },
 
     selectToEdit(data) {
@@ -96,18 +106,20 @@ export default {
 
     async handleUpdate() {
       const payload = {
-        title: this.title,
         id: this.selectedTodo.id,
+        list_id: this.listId,
+        title: this.title,
         updated_at: Date.now(),
       }
       await this.updateTodo(payload)
       this.title = ''
     },
 
-    async handleToggleComplete(data, completed) {
+    async handleToggleComplete(data) {
       const payload = {
-        title: data.title,
         id: data.id,
+        list_id: this.listId,
+        title: data.title,
         completed: !data.completed,
         updated_at: Date.now(),
       }

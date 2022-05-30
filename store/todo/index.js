@@ -17,9 +17,9 @@ export const actions = {
     }
   },
 
-  async addTodo({ commit }, id, payload) {
+  async addTodo({ commit }, payload) {
     try {
-      const response = await this.$repositories.todo.addTodo(id, payload)
+      const response = await this.$repositories.todo.addTodo(payload)
       commit('createTodo', response)
       return true
     } catch (error) {
@@ -37,10 +37,10 @@ export const actions = {
     }
   },
 
-  async deleteTodo({ commit }, id) {
+  async deleteTodo({ commit }, payload) {
     try {
-      await this.$repositories.todo.deleteTodo(id)
-      commit('removeTodo', id)
+      await this.$repositories.todo.deleteTodo(payload)
+      commit('removeTodo', payload)
       return true
     } catch (error) {
       return error
@@ -57,7 +57,7 @@ export const mutations = {
     state.todos.unshift(data)
   },
 
-  removeTodo(state, id) {
+  removeTodo(state, { id }) {
     state.todos = state.todos.filter((todo) => todo.id !== id)
   },
 

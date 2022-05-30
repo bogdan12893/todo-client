@@ -22,13 +22,19 @@
       </div>
     </form>
     <div v-for="list in lists" :key="list.id">
-      <p>{{ list }}</p>
+      <nuxt-link :to="`/${list.id}`">
+        <div class="rounded-lg bg-purple-100 m-4 p-8 hover:bg-purple-200">
+          <h2 class="text-xl font-medium">{{ list.title }}</h2>
+          <p>created: {{ timeSince(list.created_at) }}</p>
+        </div>
+      </nuxt-link>
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import { timeSince } from '~/utils/commonUtil'
 
 export default {
   name: 'IndexPage',
@@ -49,15 +55,13 @@ export default {
     }),
   },
 
-  mounted() {
-    this.getLists()
-  },
-
   methods: {
     ...mapActions({
       getLists: 'list/getLists',
       addList: 'list/addList',
     }),
+
+    timeSince,
 
     async handleList() {
       await this.addList({ list: { title: this.title } })
