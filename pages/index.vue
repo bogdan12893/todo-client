@@ -3,7 +3,7 @@
     <div class="w-100 flex justify-center m-10">
       <h1 class="text-4xl text-gray-600 font-bold">TO DO APP</h1>
     </div>
-    <form @submit.prevent="handleAddTodo">
+    <form @submit.prevent="handleList">
       <div class="flex items-center m-4">
         <input
           id="todo"
@@ -14,35 +14,27 @@
           required
         />
         <button
-          v-if="selectedTodo"
-          class="text-white bg-yellow-400 hover:bg-yellow-800 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-yellow-600 dark:hover:bg-yellow-700 focus:outline-none dark:focus:ring-yellow-800 whitespace-nowrap"
-          type="button"
-          @click="handleUpdate"
-        >
-          update
-        </button>
-        <button
-          v-else
           class="text-white bg-green-400 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800 whitespace-nowrap"
           type="submit"
         >
-          add to do
+          Create List
         </button>
       </div>
     </form>
-    <div v-for="todo in todos" :key="todo.id">
-      <TodoItem
-        :todo-data="todo"
-        @remove="handleDeleteTodo"
-        @edit="selectToEdit"
-        @toggleComplete="handleToggleComplete"
-      />
+    <div v-for="list in lists" :key="list.id">
+      <nuxt-link :to="`/${list.id}`">
+        <div class="rounded-lg bg-purple-100 m-4 p-8 hover:bg-purple-200">
+          <h2 class="text-xl font-medium">{{ list.title }}</h2>
+          <p>created: {{ timeSince(list.created_at) }}</p>
+        </div>
+      </nuxt-link>
     </div>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import { timeSince } from '~/utils/commonUtil'
 
 export default {
   name: 'IndexPage',
@@ -50,60 +42,29 @@ export default {
   data() {
     return {
       title: '',
-      selectedTodo: null,
     }
   },
 
   async fetch() {
-    await this.getTodos()
+    await this.getLists()
   },
 
   computed: {
     ...mapGetters({
-      todos: 'todo/todos',
+      lists: 'list/lists',
     }),
   },
 
   methods: {
     ...mapActions({
-      getTodos: 'todo/getTodos',
-      addTodo: 'todo/addTodo',
-      deleteTodo: 'todo/deleteTodo',
-      updateTodo: 'todo/updateTodo',
+      getLists: 'list/getLists',
+      addList: 'list/addList',
     }),
 
-    async handleAddTodo() {
-      await this.addTodo({ todo: { title: this.title } })
-      this.title = ''
-    },
+    timeSince,
 
-    async handleDeleteTodo(id) {
-      await this.deleteTodo(id)
-    },
-
-    selectToEdit(data) {
-      this.title = data.title
-      this.selectedTodo = data
-    },
-
-    async handleUpdate() {
-      const payload = {
-        title: this.title,
-        id: this.selectedTodo.id,
-        updated_at: Date.now(),
-      }
-      await this.updateTodo(payload)
-      this.title = ''
-    },
-
-    async handleToggleComplete(data, completed) {
-      const payload = {
-        title: data.title,
-        id: data.id,
-        completed: !data.completed,
-        updated_at: Date.now(),
-      }
-      await this.updateTodo(payload)
+    async handleList() {
+      await this.addList({ list: { title: this.title } })
     },
   },
 }
