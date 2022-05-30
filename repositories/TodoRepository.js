@@ -1,11 +1,11 @@
 export default ($axios) => ({
-  async getTodos() {
-    const response = await $axios.get('/todos')
+  async getTodos(id) {
+    const response = await $axios.get(`/lists/${id}/todos`)
     return response.data
   },
 
-  async addTodo(payload) {
-    const response = await $axios.post('/todos', payload)
+  async addTodo(id, payload) {
+    const response = await $axios.post(`/lists/${id}/todos`, payload)
     return response.data
   },
 

@@ -17,10 +17,10 @@ export const actions = {
     }
   },
 
-  async addTodo({ commit }, payload) {
+  async addTodo({ commit }, id, payload) {
     try {
-      const response = await this.$repositories.todo.addTodo(payload)
-      commit('setTodo', response)
+      const response = await this.$repositories.todo.addTodo(id, payload)
+      commit('createTodo', response)
       return true
     } catch (error) {
       return error
@@ -53,7 +53,7 @@ export const mutations = {
     state.todos = data
   },
 
-  setTodo(state, data) {
+  createTodo(state, data) {
     state.todos.unshift(data)
   },
 
